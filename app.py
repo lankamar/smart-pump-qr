@@ -113,6 +113,7 @@ if Role == "🍎 Nutrición":
         st.info(f"🏥 **Servicio:** {service_name}")
     
     indication = st.text_area("💊 Indicación / Fórmula:", placeholder="Ej: Nutrison Energy 1000ml a 63ml/h")
+    observations = st.text_area("📝 Observaciones (Opcional):", placeholder="Ej: Bomba hace ruido, falta pie, etc.")
     
     if signer and bed_input and indication:
         subject = f"ACTUALIZACIÓN BOMBA #{pump_id} - Cama {bed_input}"
@@ -124,6 +125,7 @@ Reporto actualización de bomba:
 - Ubicación: {bed_details}
 - Servicio: {service_name}
 - Indicación: {indication}
+- Observaciones: {observations if observations else "Ninguna"}
 - Firma: {signer}
 - Hora: {datetime.now().strftime('%H:%M')}
 
@@ -182,6 +184,8 @@ elif Role == "💉 Enfermería":
         bed_details = f"Piso {floor} | Sala {room} | Cama {bed}"
         st.success(f"📍 {bed_details}")
         st.info(f"🏥 **Servicio:** {service_name}")
+    
+    observations = st.text_area("📝 Observaciones (Opcional):", placeholder="Ej: Tecla dura, pantalla rayada...")
 
     if signer and bed_input:
         subject = f"DISPONIBILIDAD BOMBA #{pump_id}"
@@ -192,6 +196,7 @@ La bomba #{pump_id} ({pump_serial}) ha sido liberada y está DISPONIBLE para su 
 - Código Cama: {bed_input}
 - Ubicación: {bed_details}
 - Servicio: {service_name}
+- Observaciones: {observations if observations else "Ninguna"}
 - Firma: {signer}
 - Hora: {datetime.now().strftime('%H:%M')}
 
