@@ -52,17 +52,36 @@ recipient_email = "alimentacionenteral@hospitaldeclinicas.uba.ar"
 
 if role == "🍎 Nutrición":
     st.info("Complete los datos para informar la indicación.")
-    bed = st.text_input("🛏️ Número de Cama:", placeholder="Ej: 402")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        signer = st.text_input("✍️ Su Nombre:", placeholder="Ej: Juan Pérez")
+    with col2:
+        bed_input = st.text_input("🛏️ Código de Cama:", placeholder="Ej: 11432")
+
+    # Lógica de Camas Hospital
+    bed_details = ""
+    if bed_input and bed_input.isdigit():
+        bed_num = int(bed_input)
+        floor = bed_num // 1000
+        room = (bed_num % 1000) // 100
+        bed = bed_num % 100
+        
+        bed_details = f"Piso {floor} | Sala {room} | Cama {bed}"
+        st.success(f"📍 Ubicación detectada: **{bed_details}**")
+    
     indication = st.text_area("💊 Indicación / Fórmula:", placeholder="Ej: Nutrison Energy 1000ml a 63ml/h")
     
-    if bed and indication:
-        subject = f"ACTUALIZACIÓN BOMBA #{pump_id} - Cama {bed}"
+    if signer and bed_input and indication:
+        subject = f"ACTUALIZACIÓN BOMBA #{pump_id} - Cama {bed_input}"
         body = f"""Hola,
         
 Reporto actualización de bomba:
 - Bomba: #{pump_id} ({pump_serial})
-- Cama: {bed}
+- Código Cama: {bed_input}
+- Ubicación: {bed_details}
 - Indicación: {indication}
+- Firma: {signer}
 - Hora: {datetime.now().strftime('%H:%M')}
 
 Saludos."""
@@ -97,41 +116,45 @@ Saludos."""
 elif role == "💉 Enfermería":
     st.success("Informe que la bomba ya no se está utilizando.")
     
-    subject = f"DISPONIBILIDAD BOMBA #{pump_id}"
-    body = f"""Hola,
+    signer = st.text_input("✍️ Su Nombre:", placeholder="Ej: Lic. María Gomez")
     
+    if signer:
+        subject = f"DISPONIBILIDAD BOMBA #{pump_id}"
+        body = f"""Hola,
+        
 La bomba #{pump_id} ({pump_serial}) ha sido liberada y está DISPONIBLE para su retiro o limpieza.
 
+- Firma: {signer}
 - Hora: {datetime.now().strftime('%H:%M')}
 
 Saludos,
 Enfermería."""
-    
-    # Codificar para URL
-    subject_enc = urllib.parse.quote(subject)
-    body_enc = urllib.parse.quote(body)
-    mailto_link = f"mailto:{recipient_email}?subject={subject_enc}&body={body_enc}"
-    
-    st.markdown(f"""
-        <a href="{mailto_link}" target="_blank" style="text-decoration: none;">
-            <button style="
-                width: 100%;
-                background-color: #17a2b8;
-                color: white;
-                padding: 15px;
-                border: none;
-                border-radius: 10px;
-                font-size: 18px;
-                font-weight: bold;
-                cursor: pointer;
-                margin-top: 20px;">
-                🟢 INFORMAR DISPONIBLE
-            </button>
-        </a>
-        <p style='text-align: center; font-size: 0.8rem; margin-top: 10px; color: gray;'>
-            Se abrirá su app de correo para enviar.
-        </p>
-    """, unsafe_allow_html=True)
+        
+        # Codificar para URL
+        subject_enc = urllib.parse.quote(subject)
+        body_enc = urllib.parse.quote(body)
+        mailto_link = f"mailto:{recipient_email}?subject={subject_enc}&body={body_enc}"
+        
+        st.markdown(f"""
+            <a href="{mailto_link}" target="_blank" style="text-decoration: none;">
+                <button style="
+                    width: 100%;
+                    background-color: #17a2b8;
+                    color: white;
+                    padding: 15px;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    margin-top: 20px;">
+                    🟢 INFORMAR DISPONIBLE
+                </button>
+            </a>
+            <p style='text-align: center; font-size: 0.8rem; margin-top: 10px; color: gray;'>
+                Se abrirá su app de correo para enviar.
+            </p>
+        """, unsafe_allow_html=True)
 
 # Debug info (borrar en producción)
 with st.expander("Información Técnica"):
