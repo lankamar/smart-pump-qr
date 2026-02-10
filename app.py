@@ -45,6 +45,44 @@ st.markdown(f"<h1 style='font-size: 24px;'>🏥 Bomba #{pump_id}</h1>", unsafe_a
 st.markdown(f"<p style='text-align: center; color: gray;'>Serie: {pump_serial} | 🕒 {datetime.now().strftime('%H:%M')}</p>", unsafe_allow_html=True)
 st.markdown("---")
 
+# Mapa de Servicios del Hospital
+# (Piso, Sala) -> Nombre del Servicio
+SERVICE_MAP = {
+    (99, 2): "AMBULATORIOS",
+    (7, 1): "CIRUGIA GASTROENTEROLOGICA",
+    (8, 5): "CIRUGIA ONCOLOGICA / TERAPIA INTENSIVA / UCO",
+    (8, 1): "CIRUGIA VASCULAR Y TORACICA",
+    (5, 1): "GINECOLOGÍA",
+    (5, 3): "GINECOLOGÍA",
+    (8, 3): "HOSPITAL DE DIA",
+    (2, 4): "HOSPITAL DE DIA PED / ONCO / UTI / UCIP",
+    (11, 3): "INMUNOSUPRIMIDOS Y TRANSPLANTE RENAL",
+    (10, 2): "MEDICINA (1º CATEDRA)",
+    (10, 4): "MEDICINA (1º CATEDRA)",
+    (11, 1): "MEDICINA (4º CATEDRA)",
+    (11, 2): "MEDICINA (5º CATEDRA)",
+    (11, 4): "MEDICINA (5º CATEDRA)",
+    (10, 6): "MEDICINA (6º CATEDRA)",
+    (11, 6): "MEDICINA (6º CATEDRA)",
+    (11, 5): "MEDICINA (7º CATEDRA)",
+    (2, 1): "NEONATOLOGIA",
+    (2, 6): "NEONATOLOGIA PATOLOGICA",
+    (9, 5): "NEUROCIRUGIA",
+    (1, 3): "O.R.L.",
+    (2, 5): "OBSTETRICIA",
+    (8, 6): "ONCOLOGIA / TRANSPLANTE MEDULA OSEA",
+    (6, 1): "ORTOPEDIA Y TRAUMATOLOGIA",
+    (6, 3): "ORTOPEDIA Y TRAUMATOLOGIA",
+    (2, 2): "PEDIATRIA",
+    (5, 4): "SALUD MENTAL",
+    (10, 3): "TERAPIA INTENSIVA",
+    (10, 5): "TERAPIA INTENSIVA",
+    (10, 1): "UNIDAD CORONARIA",
+    (0, 0): "URGENCIAS",
+    (0, 1): "URGENCIAS - AFEBRIL",
+    (4, 3): "UROLOGIA",
+}
+
 # Selección de Rol con Iconos
 role = st.radio("👤 ¿Quién reporta?", ["Seleccionar...", "🍎 Nutrición", "💉 Enfermería"], index=0, horizontal=True)
 
@@ -61,14 +99,18 @@ if role == "🍎 Nutrición":
 
     # Lógica de Camas Hospital
     bed_details = ""
+    service_name = ""
     if bed_input and bed_input.isdigit():
         bed_num = int(bed_input)
         floor = bed_num // 1000
         room = (bed_num % 1000) // 100
         bed = bed_num % 100
         
+        service_name = SERVICE_MAP.get((floor, room), "Servicio Desconocido")
+        
         bed_details = f"Piso {floor} | Sala {room} | Cama {bed}"
-        st.success(f"📍 Ubicación detectada: **{bed_details}**")
+        st.success(f"📍 {bed_details}")
+        st.info(f"🏥 **Servicio:** {service_name}")
     
     indication = st.text_area("💊 Indicación / Fórmula:", placeholder="Ej: Nutrison Energy 1000ml a 63ml/h")
     
@@ -80,6 +122,7 @@ Reporto actualización de bomba:
 - Bomba: #{pump_id} ({pump_serial})
 - Código Cama: {bed_input}
 - Ubicación: {bed_details}
+- Servicio: {service_name}
 - Indicación: {indication}
 - Firma: {signer}
 - Hora: {datetime.now().strftime('%H:%M')}
