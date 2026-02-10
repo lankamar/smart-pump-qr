@@ -84,11 +84,11 @@ SERVICE_MAP = {
 }
 
 # Selección de Rol con Iconos
-role = st.radio("👤 ¿Quién reporta?", ["Seleccionar...", "🍎 Nutrición", "💉 Enfermería"], index=0, horizontal=True)
+Role = st.radio("👤 ¿Quién reporta?", ["Seleccionar...", "🍎 Nutrición", "💉 Enfermería"], index=0, horizontal=True)
 
 recipient_email = "alimentacionenteral@hospitaldeclinicas.uba.ar"
 
-if role == "🍎 Nutrición":
+if Role == "🍎 Nutrición":
     st.info("Complete los datos para informar la indicación.")
     
     col1, col2 = st.columns(2)
@@ -156,17 +156,42 @@ Saludos."""
         """, unsafe_allow_html=True)
 
 
-elif role == "💉 Enfermería":
+elif Role == "💉 Enfermería":
     st.success("Informe que la bomba ya no se está utilizando.")
     
-    signer = st.text_input("✍️ Su Nombre:", placeholder="Ej: Lic. María Gomez")
-    
-    if signer:
+    col1, col2 = st.columns(2)
+    with col1:
+        signer = st.text_input("✍️ Su Nombre:", placeholder="Ej: Lic. María Gomez", key="nurse_signer")
+    with col2:
+        bed_input = st.text_input("🛏️ Código de Cama:", placeholder="Ej: 11432", key="nurse_bed")
+
+    # Lógica de Camas Hospital (Copia para Enfermería)
+    bed_details = ""
+    service_name = ""
+    if bed_input and bed_input.isdigit():
+        bed_num = int(bed_input)
+        floor = bed_num // 1000
+        room = (bed_num % 1000) // 100
+        bed = bed_num % 100
+        
+        if floor == 11 and room == 0: 
+             pass
+
+        service_name = SERVICE_MAP.get((floor, room), "Servicio Desconocido")
+        
+        bed_details = f"Piso {floor} | Sala {room} | Cama {bed}"
+        st.success(f"📍 {bed_details}")
+        st.info(f"🏥 **Servicio:** {service_name}")
+
+    if signer and bed_input:
         subject = f"DISPONIBILIDAD BOMBA #{pump_id}"
         body = f"""Hola,
         
 La bomba #{pump_id} ({pump_serial}) ha sido liberada y está DISPONIBLE para su retiro o limpieza.
 
+- Código Cama: {bed_input}
+- Ubicación: {bed_details}
+- Servicio: {service_name}
 - Firma: {signer}
 - Hora: {datetime.now().strftime('%H:%M')}
 
